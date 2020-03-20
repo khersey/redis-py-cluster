@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # python std lib
+import logging
 import random
 
 # rediscluster imports
@@ -12,6 +13,9 @@ from redis import Redis
 from redis._compat import unicode, long, basestring
 from redis.connection import Encoder
 from redis import ConnectionError, TimeoutError, ResponseError
+
+
+logger = logging.getLogger(__name__)
 
 
 class NodeManager(object):
@@ -160,6 +164,7 @@ class NodeManager(object):
             try:
                 r = self.get_redis_link(host=node["host"], port=node["port"], decode_responses=True)
                 cluster_slots = r.execute_command("cluster", "slots")
+                logger.info('Cluster Slots: %s', cluster_slots)
                 startup_nodes_reachable = True
             except (ConnectionError, TimeoutError):
                 continue
@@ -243,6 +248,7 @@ class NodeManager(object):
         for i in range(min(ct, self.reinitialize_steps)):
             self.reinitialize_counter += 1
             if self.reinitialize_counter % self.reinitialize_steps == 0:
+                logger.warning('node pool reinitialization has been triggered!')
                 self.initialize()
 
     def cluster_require_full_coverage(self, nodes_cache):

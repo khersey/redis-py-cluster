@@ -597,7 +597,7 @@ class RedisCluster(Redis):
 
                 raise e
             except MovedError as e:
-                logger.exception('MOVED returned, trying to run: %s %s', command, kwargs)
+                logger.exception('MOVED returned, trying to run: %s %s', command, args)
                 # Reinitialize on ever x number of MovedError.
                 # This counter will increase faster when the same client object
                 # is shared between multiple threads. To reduce the frequency you
