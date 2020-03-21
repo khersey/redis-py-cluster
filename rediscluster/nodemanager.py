@@ -147,6 +147,7 @@ class NodeManager(object):
         """
         Init the slots cache by asking all startup nodes what the current cluster configuration is
         """
+        logger.info('NodeManager.initialize() called!')
         nodes_cache = {}
         tmp_slots = {}
 
@@ -164,7 +165,6 @@ class NodeManager(object):
             try:
                 r = self.get_redis_link(host=node["host"], port=node["port"], decode_responses=True)
                 cluster_slots = r.execute_command("cluster", "slots")
-                logger.info('Cluster Slots: %s', cluster_slots)
                 startup_nodes_reachable = True
             except (ConnectionError, TimeoutError):
                 continue
@@ -179,6 +179,7 @@ class NodeManager(object):
                 raise RedisClusterException("ERROR sending 'cluster slots' command to redis server: {0}".format(node))
 
             all_slots_covered = True
+            logger.info('Cluster Slots: %s', cluster_slots)
 
             # If there's only one server in the cluster, its ``host`` is ''
             # Fix it to the host in startup_nodes
@@ -248,7 +249,7 @@ class NodeManager(object):
         for i in range(min(ct, self.reinitialize_steps)):
             self.reinitialize_counter += 1
             if self.reinitialize_counter % self.reinitialize_steps == 0:
-                logger.warning('node pool reinitialization has been triggered!')
+                logger.warning('node pool reinitialization has been triggered by incrementing!')
                 self.initialize()
 
     def cluster_require_full_coverage(self, nodes_cache):
