@@ -536,7 +536,7 @@ class RedisCluster(Redis):
 
         # If set externally we must update it before calling any commands
         if self.refresh_table_asap:
-            logger.info('refreshing NodeManager because refresh_table_asap was set')
+            logger.error('refreshing NodeManager because refresh_table_asap was set')
             self.connection_pool.nodes.initialize()
             self.refresh_table_asap = False
 
@@ -559,7 +559,7 @@ class RedisCluster(Redis):
             if asking:
                 node = self.connection_pool.nodes.nodes[redirect_addr]
                 if has_moved:
-                    logger.info('Trying node: %s', node)
+                    logger.warning('Trying node: %s', node)
                 r = self.connection_pool.get_connection_by_node(node)
             elif try_random_node:
                 r = self.connection_pool.get_random_connection()
@@ -572,7 +572,7 @@ class RedisCluster(Redis):
                     node = self.connection_pool.get_node_by_slot(slot, self.read_from_replicas and (command in self.READ_COMMANDS))
                     is_read_replica = node['server_type'] == 'slave'
                 if has_moved:
-                    logger.info('Trying node: %s', node)
+                    logger.warning('Trying node: %s', node)
                 r = self.connection_pool.get_connection_by_node(node)
 
             try:
@@ -604,7 +604,8 @@ class RedisCluster(Redis):
 
                 raise e
             except MovedError as e:
-                logger.exception('MOVED returned, trying to run: %s %s', command, args)
+                logger.exception('MOVED returned, trying to run: %s %s', command, args,
+                                 extra={'connection': repr(r), 'slot': slot})
                 has_moved = True
                 # Reinitialize on ever x number of MovedError.
                 # This counter will increase faster when the same client object

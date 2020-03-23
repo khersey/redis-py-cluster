@@ -147,7 +147,7 @@ class NodeManager(object):
         """
         Init the slots cache by asking all startup nodes what the current cluster configuration is
         """
-        logger.info('NodeManager.initialize() called!')
+        logger.warning('NodeManager.initialize() called!')
         nodes_cache = {}
         tmp_slots = {}
 
@@ -179,7 +179,7 @@ class NodeManager(object):
                 raise RedisClusterException("ERROR sending 'cluster slots' command to redis server: {0}".format(node))
 
             all_slots_covered = True
-            logger.info('Cluster Slots: %s', cluster_slots)
+            logger.error('Cluster Slots: %s', cluster_slots)
 
             # If there's only one server in the cluster, its ``host`` is ''
             # Fix it to the host in startup_nodes
