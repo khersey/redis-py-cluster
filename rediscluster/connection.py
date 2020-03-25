@@ -2,6 +2,7 @@
 
 # python std lib
 from __future__ import unicode_literals
+import logging
 import os
 import random
 import threading
@@ -22,6 +23,9 @@ from redis._compat import nativestr, LifoQueue, Full, Empty
 from redis.client import dict_merge
 from redis.connection import ConnectionPool, Connection, DefaultParser, SSLConnection, UnixDomainSocketConnection
 from redis.exceptions import ConnectionError
+
+
+logger = logging.getLogger(__name__)
 
 
 class ClusterParser(DefaultParser):
@@ -85,7 +89,7 @@ class SSLClusterConnection(SSLConnection):
 
             if nativestr(self.read_response()) != 'OK':
                 raise ConnectionError('READONLY command failed')
- 
+
 
 class ClusterConnectionPool(ConnectionPool):
     """
@@ -318,6 +322,10 @@ class ClusterConnectionPool(ConnectionPool):
             connection = self.make_connection(node)
 
         self._in_use_connections.setdefault(node["name"], set()).add(connection)
+
+        if connection.host != node['host']:
+            logger.error('get_connection_by_node is returning the wrong damn connection!',
+                         extra={'connection': repr(connection), 'node': str(node)})
 
         return connection
 

@@ -562,6 +562,7 @@ class RedisCluster(Redis):
                     logger.warning('Trying node: %s', node)
                 r = self.connection_pool.get_connection_by_node(node)
             elif try_random_node:
+                logger.error('trying random Node!')
                 r = self.connection_pool.get_random_connection()
                 try_random_node = False
             else:
@@ -593,6 +594,7 @@ class RedisCluster(Redis):
                 raise
             except (ConnectionError, TimeoutError):
                 try_random_node = True
+                logger.exception('an error requiring a random node was triggered!')
 
                 if ttl < self.RedisClusterRequestTTL / 2:
                     time.sleep(0.1)
