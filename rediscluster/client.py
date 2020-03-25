@@ -593,8 +593,8 @@ class RedisCluster(Redis):
             except (RedisClusterException, BusyLoadingError):
                 raise
             except (ConnectionError, TimeoutError):
-                try_random_node = True
-                logger.exception('an error requiring a random node was triggered!')
+                # try_random_node = True
+                # logger.exception('an error requiring a random node was triggered!')
 
                 if ttl < self.RedisClusterRequestTTL / 2:
                     time.sleep(0.1)
